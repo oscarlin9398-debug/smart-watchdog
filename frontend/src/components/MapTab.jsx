@@ -67,10 +67,15 @@ export default function MapTab({ institutions, selectedInst, onSelectInst, onOpe
       else if (selectedLevel === '國小') matchLevel = item.type.includes('國小');
       else if (selectedLevel === '幼兒園') matchLevel = item.type.includes('幼兒園');
 
-      const matchQuery = searchQuery === '' || 
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const s = searchQuery.trim().toLowerCase();
+      const sNorm = s.replace(/高中/g, '高級中學').replace(/國中/g, '國民中學').replace(/國小/g, '國民小學');
+      const hasAlias = item.aliases && item.aliases.some(a => a.toLowerCase().includes(s) || s.includes(a.toLowerCase()));
+      const matchQuery = searchQuery === "" ||
+        item.name.toLowerCase().includes(s) ||
+        item.name.toLowerCase().includes(sNorm) ||
         item.district.includes(searchQuery) ||
-        item.address.includes(searchQuery);
+        item.address.includes(searchQuery) ||
+        hasAlias;
 
       return matchDistrict && matchRisk && matchLevel && matchQuery;
     });

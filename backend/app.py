@@ -70,10 +70,17 @@ def get_institutions(
     if risk and risk != "ALL":
         results = [i for i in results if i.get("risk_category") == risk]
     if keyword:
-        kw = keyword.lower()
+        kw = keyword.lower().strip()
+        # Normalization variants for smart fuzzy search
+        kw_norm1 = kw.replace("高中", "高級中學").replace("國中", "國民中學").replace("國小", "國民小學")
         results = [
             i for i in results
-            if kw in i["name"].lower() or kw in i.get("district", "") or kw in i.get("address", "")
+            if kw in i["name"].lower()
+            or kw_norm1 in i["name"].lower()
+            or kw in i.get("district", "").lower()
+            or kw in i.get("address", "").lower()
+            or any(kw in str(a).lower() for a in i.get("aliases", []))
+            or any(str(a).lower() in kw for a in i.get("aliases", []))
         ]
 
     return results

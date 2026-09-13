@@ -22,10 +22,15 @@ export default function InstitutionsTab({ institutions, onOpenAudit, onAskAi, on
     setCurrentPage(1); // Reset to page 1 on filter change
     return institutions
       .filter(item => {
+        const s = search.trim().toLowerCase();
+        const sNorm = s.replace(/高中/g, '高級中學').replace(/國中/g, '國民中學').replace(/國小/g, '國民小學');
+        const hasAlias = item.aliases && item.aliases.some(a => a.toLowerCase().includes(s) || s.includes(a.toLowerCase()));
         const matchSearch = search === '' ||
-          item.name.toLowerCase().includes(search.toLowerCase()) ||
+          item.name.toLowerCase().includes(s) ||
+          item.name.toLowerCase().includes(sNorm) ||
           item.district.includes(search) ||
-          item.address.includes(search);
+          item.address.includes(search) ||
+          hasAlias;
         
         const matchDistrict = districtFilter === 'ALL' || item.district === districtFilter;
         const matchRisk = riskFilter === 'ALL' || item.risk_category === riskFilter;
