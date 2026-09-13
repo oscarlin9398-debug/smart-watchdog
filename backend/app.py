@@ -2,13 +2,14 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 import json
 import os
 
 app = FastAPI(
-    title="小小守護員 Smart Watchdog API",
-    description="全國幼兒教保及托育機構 智慧風險稽查與預警系統 API",
-    version="2.0.0"
+    title="新北市校園治理情報平台 API",
+    description="新北市各級學校與教保機構 智慧風險稽查與預警系統 API",
+    version="3.0.0"
 )
 
 app.add_middleware(
@@ -28,49 +29,51 @@ except Exception as e:
     INSTITUTIONS = []
 
 @app.get("/")
-def root():
+def read_root():
+    ntpc = [i for i in INSTITUTIONS if i.get("city") == "新北市"]
     return {
-        "system": "小小守護員 Smart Watchdog",
-        "version": "2.0.0",
+        "system": "新北市校園治理情報平台 API (NTPC v3.0)",
         "status": "online",
-        "total_institutions": len(INSTITUTIONS)
+        "total_institutions": len(INSTITUTIONS),
+        "ntpc_institutions": len(ntpc)
     }
 
 @app.get("/api/statistics")
 def get_statistics():
-    total = len(INSTITUTIONS)
-    high = sum(1 for i in INSTITUTIONS if i["risk_category"] == "高風險")
-    medium = sum(1 for i in INSTITUTIONS if i["risk_category"] == "中風險")
-    low = sum(1 for i in INSTITUTIONS if i["risk_category"] == "低風險")
-    total_fines = sum(i.get("total_fines", 0) for i in INSTITUTIONS)
-    total_violations = sum(i.get("violation_count", 0) for i in INSTITUTIONS)
+    ntpc = [i for i in INSTITUTIONS if i.get("city") == "新北市"]
+    total = len(ntpc)
+    high = len([i for i in ntpc if i.get("risk_category") == "高風險"])
+    medium = len([i for i in ntpc if i.get("risk_category") == "中風險"])
+    low = len([i for i in ntpc if i.get("risk_category") == "低風險"])
+    total_fines = sum(i.get("total_fines", 0) for i in ntpc)
 
     return {
-        "total": total,
-        "high": high,
-        "medium": medium,
-        "low": low,
+        "total_institutions": total,
+        "high_risk": high,
+        "medium_risk": medium,
+        "low_risk": low,
         "total_fines": total_fines,
-        "total_violations": total_violations
+        "high_schools": len([i for i in ntpc if "高中" in i.get("type", "") or "高職" in i.get("type", "")]),
+        "junior_highs": len([i for i in ntpc if "國中" in i.get("type", "")]),
+        "elem_schools": len([i for i in ntpc if "國小" in i.get("type", "")]),
+        "preschools": len([i for i in ntpc if "幼兒園" in i.get("type", "")])
     }
 
 @app.get("/api/institutions")
-def list_institutions(
-    city: str = Query(None, description="篩選縣市"),
-    risk: str = Query(None, description="篩選風險類別"),
+def get_institutions(
+    city: str = Query(None, description="縣市篩選"),
+    risk: str = Query(None, description="風險等級"),
     keyword: str = Query(None, description="關鍵字搜尋")
 ):
-    results = INSTITUTIONS
+    results = [i for i in INSTITUTIONS if i.get("city") == "新北市"] if not city else [i for i in INSTITUTIONS if city in i.get("city", "")]
 
-    if city and city != "ALL":
-        results = [i for i in results if city in i["city"]]
     if risk and risk != "ALL":
-        results = [i for i in results if i["risk_category"] == risk]
+        results = [i for i in results if i.get("risk_category") == risk]
     if keyword:
         kw = keyword.lower()
         results = [
-            i for i in results 
-            if kw in i["name"].lower() or kw in i["district"] or kw in i["address"]
+            i for i in results
+            if kw in i["name"].lower() or kw in i.get("district", "") or kw in i.get("address", "")
         ]
 
     return results
@@ -83,22 +86,29 @@ def get_institution(inst_id: str):
     return inst
 
 class ChatRequest(BaseModel):
-    inst_id: str
+    inst_id: Optional[str] = None
     message: str
 
 @app.post("/api/chat")
 def chat_with_agent(req: ChatRequest):
-    inst = next((i for i in INSTITUTIONS if i["id"] == req.inst_id), None)
-    if not inst:
-        return {"reply": "查無此機構資料，請確認機構編號。"}
+    inst = None
+    if req.inst_id:
+        inst = next((i for i in INSTITUTIONS if i["id"] == req.inst_id), None)
 
     msg = req.message.lower()
-    if "稽查" in msg or "突擊" in msg or "清單" in msg:
-        reply = f"【{inst['name']} 突擊稽查指示】\n1. 現場清查在園幼兒人數，比對核定容量 {inst['approved_capacity']} 人。\n2. 調閱最近 30 日監視器錄影，排除死角。\n3. 比對教職員合格證書與投保名冊。\n4. 查驗廚房食品留樣 48 小時合規性。"
-    elif "財務" in msg or "班佛" in msg:
-        reply = f"【{inst['name']} 班佛財務分析】\n異常指標：{inst['benford']['fin_risk_score']} 分，狀態：{inst['benford']['benford_status']}。\n建議調閱近六個月對外收款單據與收費備查項目是否相符。"
+    if inst:
+        if "稽查" in msg or "突擊" in msg or "清單" in msg:
+            reply = f"【{inst['name']} 突擊稽查指示】\n1. 現場清查在校/園人數，比對核定容量 {inst.get('approved_capacity', 100)} 人。\n2. 調閱最近 30 日監視器錄影，排除死角。\n3. 比對教職員合格證書與勞健保投保名冊。\n4. 查驗中央廚房食材登錄平台與留樣 48 小時合規性。"
+        elif "財務" in msg or "班佛" in msg:
+            b_score = inst.get("benford", {}).get("fin_risk_score", 20)
+            b_status = inst.get("benford", {}).get("benford_status", "合規")
+            reply = f"【{inst['name']} 班佛財務分析】\n異常指標：{b_score} 分，狀態：{b_status}。\n建議調閱近六個月大宗採購與代辦費收支單據是否相符。"
+        else:
+            reply = f"針對 {inst['name']}：該機構目前風險總分為 {inst['total_score']} 分（{inst['risk_category']}），累計裁罰 {inst.get('violation_count', 0)} 次。建議參照五維雷達圖評估其校園安全。"
     else:
-        reply = f"已收到針對 {inst['name']} 的諮詢。該機構目前風險總分為 {inst['total_score']} 分（{inst['risk_category']}），累計裁罰 {inst['violation_count']} 次。建議參照五維雷達圖評估其照顧安全。"
+        ntpc = [x for x in INSTITUTIONS if x.get("city") == "新北市"]
+        high_ntpc = [x for x in ntpc if x.get("risk_category") == "高風險"]
+        reply = f"【新北市校園治理 AI 稽查總覽】\n新北市目前納管各級學校與幼托共 {len(ntpc)} 所，其中列為第一級高風險加強列管者共 {len(high_ntpc)} 所（涉及師生比超收、食材農藥超標或標案金流異常）。建議教育局公安聯合稽查小組優先針對高風險名冊排定現場實地督導。"
 
     return {"reply": reply}
 
