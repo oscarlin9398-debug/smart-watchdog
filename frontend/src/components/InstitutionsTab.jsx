@@ -79,7 +79,7 @@ export default function InstitutionsTab({ institutions, onOpenAudit, onAskAi, on
             type="text"
             className="search-input"
             style={{ width: '100%', paddingLeft: '38px' }}
-            placeholder="新北市 400+ 所高中、國中、國小、幼兒園名冊檢索：輸入校名、行政區、路名..."
+            placeholder="新北市各級高中、國中、國小、幼兒園名冊檢索：輸入校名、行政區、路名或常用簡稱..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { AlertCircle, X, CheckCircle2, ShieldAlert, Upload, Send } from 'lucide-react';
+import { X, AlertCircle, Send, CheckCircle2 } from 'lucide-react';
 
 export default function WhistleblowerModal({ institutions, onClose, onSubmitReport }) {
   const [targetId, setTargetId] = useState(institutions[0]?.id);
-  const [incidentType, setIncidentType] = useState('疑似超額收托與師生比不符');
+  const [incidentType, setIncidentType] = useState('校園安全或環境設施缺失');
   const [date, setDate] = useState('2026-09-13');
   const [details, setDetails] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const selectedInst = institutions.find(i => i.id === targetId) || institutions[0];
+  const isPreschool = selectedInst?.type && (selectedInst.type.includes('幼兒園') || selectedInst.type.includes('幼托'));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -72,7 +73,7 @@ export default function WhistleblowerModal({ institutions, onClose, onSubmitRepo
               通報已受理並即時連動加權
             </h3>
             <p style={{ fontSize: '0.86rem', color: '#475569', lineHeight: 1.6 }}>
-              感謝您的公民監督！該園所【{selectedInst.name}】之風險指標已動態增提權重，並排入本週督學不定期抽檢優先清單。
+              感謝您的公民監督！該校／園所【{selectedInst.name}】之風險指標已動態增提權重，並排入本週督學實地抽檢優先清單。
             </p>
           </div>
         ) : (
@@ -86,14 +87,14 @@ export default function WhistleblowerModal({ institutions, onClose, onSubmitRepo
                   公民異常案件舉報沙盒
                 </h3>
                 <p style={{ fontSize: '0.76rem', color: '#64748b' }}>
-                  通報內容將即時啟動風險動態模擬，並通知權責機關
+                  通報內容將即時啟動風險動態模擬，並通知權責教育行政主管機關
                 </p>
               </div>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>
-                被檢舉園所名稱
+                受檢舉學校／園所機構
               </label>
               <select
                 className="filter-select"
@@ -103,7 +104,7 @@ export default function WhistleblowerModal({ institutions, onClose, onSubmitRepo
               >
                 {institutions.map(inst => (
                   <option key={inst.id} value={inst.id}>
-                    [{inst.city} {inst.district}] {inst.name}
+                    [{inst.district}] {inst.name} ({inst.type})
                   </option>
                 ))}
               </select>
@@ -112,7 +113,7 @@ export default function WhistleblowerModal({ institutions, onClose, onSubmitRepo
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  異常違法類型
+                  異常事由類別
                 </label>
                 <select
                   className="filter-select"
@@ -120,12 +121,27 @@ export default function WhistleblowerModal({ institutions, onClose, onSubmitRepo
                   value={incidentType}
                   onChange={(e) => setIncidentType(e.target.value)}
                 >
-                  <option value="疑似超額收托與師生比不符">疑似超額收托與師生比不符</option>
-                  <option value="不當管教或情緒語言">不當管教或情緒語言</option>
-                  <option value="未聘具合格教保資格師資">未聘具合格教保資格師資</option>
-                  <option value="擅自收取未核備代辦才藝費">擅自收取未核備代辦才藝費</option>
-                  <option value="幼童專用車超載或改裝">幼童專用車超載或改裝</option>
-                  <option value="餐點縮水或衛生有異味">餐點縮水或衛生有異味</option>
+                  {isPreschool ? (
+                    <>
+                      <option value="疑似超額收托與師資比不符">疑似超額收托與師生比不符</option>
+                      <option value="不當管教或身心虐待情事">不當管教或身心虐待情事</option>
+                      <option value="未具合格教保資格人員任教">未聘具合格教保資格師資</option>
+                      <option value="巧立名目擅自收取未核備代辦費">巧立名目擅自收取未核備代辦費</option>
+                      <option value="幼童專用車超載或違法改裝">幼童專用車超載或違法改裝</option>
+                      <option value="營養餐點衛生不良或食材縮水">營養餐點衛生不良或食材縮水</option>
+                      <option value="校園環境消防防墜設施缺失">校園環境消防防墜設施缺失</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="校園霸凌或不當管教情事">校園霸凌或不當管教情事</option>
+                      <option value="營養午餐食安衛生或食材登錄不實">營養午餐食安衛生或食材登錄不實</option>
+                      <option value="校舍消防安全或走廊防墜設施缺失">校舍消防安全或走廊防墜設施缺失</option>
+                      <option value="學雜費代辦費收取違反教育局規範">學雜費代辦費收取違反教育局規範</option>
+                      <option value="未依規定常態編班或違反收費標準">未依規定常態編班或違反收費標準</option>
+                      <option value="公務採購標案或會計帳目登載不實">公務採購標案或會計帳目登載不實</option>
+                      <option value="其他違反各級學校法規事項">其他違反各級學校法規事項</option>
+                    </>
+                  )}
                 </select>
               </div>
               <div>
@@ -149,7 +165,7 @@ export default function WhistleblowerModal({ institutions, onClose, onSubmitRepo
               <textarea
                 className="search-input"
                 style={{ width: '100%', minHeight: '90px', resize: 'vertical', lineHeight: 1.5 }}
-                placeholder="請具體敘述班級名稱、違規時間、是否有私立外聘老師或地下室活動等情事..."
+                placeholder={isPreschool ? "請具體敘述班級名稱、違規時間、師資狀況或環境安全疑慮等事證..." : "請具體敘述年級班級、發生時間、相關人員或具體違反校安食安法規之事證..."}
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
                 required

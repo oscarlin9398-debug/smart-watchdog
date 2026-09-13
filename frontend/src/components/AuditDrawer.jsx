@@ -50,7 +50,7 @@ export default function AuditDrawer({ inst, onClose, onAskAi, onPrint }) {
               {inst.name}
             </h2>
             <p style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              📍 {inst.city} {inst.district} {inst.address} ｜ ☎️ {inst.phone}
+              📍 {inst.address} ｜ ☎️ {inst.phone}
             </p>
           </div>
 
@@ -189,9 +189,17 @@ export default function AuditDrawer({ inst, onClose, onAskAi, onPrint }) {
                 </div>
               </div>
               <div style={{ padding: '16px', borderRadius: 'var(--radius-sm)', background: '#ffffff', border: '1px solid #e2e8f0' }}>
-                <div style={{ color: '#64748b', fontSize: '0.74rem', marginBottom: '4px' }}>核准收托量與師生配比</div>
+                <div style={{ color: '#64748b', fontSize: '0.74rem', marginBottom: '4px' }}>
+                  {inst.type.includes('幼兒園') ? '核准收托量與師生配比' : (inst.type.includes('高中') || inst.type.includes('高職') ? '核定學生規模與師資編制' : '核定學生規模與班級編制')}
+                </div>
                 <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.86rem' }}>
-                  核准 {inst.approved_capacity} 人（幼照法標準上限 1:15）
+                  {inst.type.includes('幼兒園') 
+                    ? `核准 ${inst.approved_capacity} 人（幼兒教育及照顧法上限 1:15）`
+                    : (inst.type.includes('高中') || inst.type.includes('高職')
+                        ? `核定 ${inst.approved_capacity} 名學生（高級中等教育法常態編班配置）`
+                        : (inst.type.includes('國中')
+                            ? `核定 ${inst.approved_capacity} 名學生（國民教育法常態編班標準）`
+                            : `核定 ${inst.approved_capacity} 名學童（國小常態員額與師資配置）`))}
                 </div>
               </div>
             </div>

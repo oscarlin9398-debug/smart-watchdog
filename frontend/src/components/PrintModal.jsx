@@ -4,13 +4,25 @@ import { Printer, X, ShieldCheck } from 'lucide-react';
 export default function PrintModal({ inst, onClose }) {
   if (!inst) return null;
 
+  const isPreschool = inst.type && (inst.type.includes('幼兒園') || inst.type.includes('幼托') || inst.type.includes('托嬰'));
+  const isHigh = inst.type && (inst.type.includes('高中') || inst.type.includes('高職'));
+  const isJunior = inst.type && inst.type.includes('國中');
+
+  const reportTitle = isPreschool
+    ? '地方主管教育行政機關・幼兒教保機構實地查核備查表'
+    : '地方主管教育行政機關・各級學校暨教育機構實地查核備查表';
+
+  const capacityLabel = isPreschool ? '核准收托量' : '核定學生規模';
+  const capacityUnit = isPreschool ? '名幼童' : '名學生';
+  const repSignatureLabel = isPreschool ? '幼兒園負責人／代表簽章：' : '受檢學校校長／代表簽章：';
+
   return (
     <div className="drawer-backdrop" onClick={onClose} style={{ zIndex: 3000, justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
       <div 
         className="glass-panel" 
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '800px',
+          width: '820px',
           maxHeight: '90vh',
           overflowY: 'auto',
           background: '#ffffff',
@@ -60,8 +72,8 @@ export default function PrintModal({ inst, onClose }) {
 
         {/* Official Printable Header */}
         <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '16px', marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '900', letterSpacing: '1px', color: '#0f172a' }}>
-            地方主管教育行政機關・幼托機構實地查核備查表
+          <h2 style={{ fontSize: '1.4rem', fontWeight: '900', letterSpacing: '0.5px', color: '#0f172a' }}>
+            {reportTitle}
           </h2>
           <div style={{ fontSize: '0.86rem', color: '#475569', marginTop: '6px' }}>
             系統案件編號：{inst.id} ｜ 稽查等級：{inst.inspection_priority} ｜ 風險指標總分：{inst.total_score} 分
@@ -83,13 +95,13 @@ export default function PrintModal({ inst, onClose }) {
               </tr>
               <tr>
                 <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px', background: '#f8fafc', fontWeight: 'bold' }}>設立地址</td>
-                <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px' }}>{inst.city}{inst.district}{inst.address}</td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px' }}>{inst.address}</td>
                 <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px', background: '#f8fafc', fontWeight: 'bold' }}>聯絡電話</td>
                 <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px' }}>{inst.phone}</td>
               </tr>
               <tr>
-                <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px', background: '#f8fafc', fontWeight: 'bold' }}>核准收托量</td>
-                <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px' }}>{inst.approved_capacity} 名</td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px', background: '#f8fafc', fontWeight: 'bold' }}>{capacityLabel}</td>
+                <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px' }}>{inst.approved_capacity} {capacityUnit}</td>
                 <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px', background: '#f8fafc', fontWeight: 'bold' }}>風險研判等級</td>
                 <td style={{ border: '1px solid #cbd5e1', padding: '8px 12px', fontWeight: 'bold', color: inst.risk_category === '高風險' ? '#dc2626' : (inst.risk_category === '中風險' ? '#d97706' : '#059669') }}>
                   {inst.risk_category} ({inst.total_score} 分)
@@ -150,15 +162,15 @@ export default function PrintModal({ inst, onClose }) {
         {/* Signatures */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', paddingTop: '24px', borderTop: '1px solid #cbd5e1', fontSize: '0.85rem' }}>
           <div>
-            <div>聯合稽查督學簽章：</div>
+            <div>聯合稽查督學／督導簽章：</div>
             <div style={{ height: '48px', borderBottom: '1px solid #cbd5e1', marginTop: '12px' }}></div>
           </div>
           <div>
-            <div>教育局複核主管簽章：</div>
+            <div>教育局主管科室核章：</div>
             <div style={{ height: '48px', borderBottom: '1px solid #cbd5e1', marginTop: '12px' }}></div>
           </div>
           <div>
-            <div>幼兒園代表簽章：</div>
+            <div>{repSignatureLabel}</div>
             <div style={{ height: '48px', borderBottom: '1px solid #cbd5e1', marginTop: '12px' }}></div>
           </div>
         </div>

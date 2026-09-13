@@ -146,7 +146,7 @@ export default function CompareTab({ institutions, onOpenAudit }) {
                 {instA.name}
               </h4>
               <p style={{ fontSize: '0.76rem', color: '#64748b', marginBottom: '14px' }}>
-                📍 新北市 {instA.district} {instA.address}
+                📍 {instA.address}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem' }}>
@@ -213,7 +213,7 @@ export default function CompareTab({ institutions, onOpenAudit }) {
                 {instB.name}
               </h4>
               <p style={{ fontSize: '0.76rem', color: '#64748b', marginBottom: '14px' }}>
-                📍 新北市 {instB.district} {instB.address}
+                📍 {instB.address}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem' }}>

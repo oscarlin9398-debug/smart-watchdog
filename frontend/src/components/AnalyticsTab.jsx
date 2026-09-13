@@ -185,7 +185,7 @@ export default function AnalyticsTab({ institutions, onOpenAudit }) {
             新北市各級學制收錄比例
           </h3>
           <p style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '18px' }}>
-            高中職 (27所) ｜ 國中 (39所) ｜ 國小 (55所) ｜ 幼托 (288所)
+            {`高中職 (${levelCounts['公私立高級中學/職校']}所) ｜ 國中 (${levelCounts['公立國民中學']}所) ｜ 國小 (${levelCounts['公立國民小學']}所) ｜ 幼兒園 (${levelCounts['公私立幼兒園 (幼托)']}所)`}
           </p>
           <div style={{ height: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">

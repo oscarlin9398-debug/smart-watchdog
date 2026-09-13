@@ -94,7 +94,7 @@ export default function AiInspectorTab({ institutions, selectedInst, onSelectIns
             {currentInst.name}
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.76rem', marginBottom: '12px' }}>
-            📍 新北市 {currentInst.district} {currentInst.address}
+            📍 {currentInst.address}
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
