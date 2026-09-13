@@ -70,6 +70,11 @@ export default function InstitutionsTab({ institutions, onOpenAudit, onAskAi, on
     return filtered.slice(start, start + pageSize);
   }, [filtered, currentPage, pageSize]);
 
+  const highCount = useMemo(() => institutions.filter(i => i.type && (i.type.includes('高中') || i.type.includes('高職'))).length, [institutions]);
+  const juniorCount = useMemo(() => institutions.filter(i => i.type && i.type.includes('國中')).length, [institutions]);
+  const elemCount = useMemo(() => institutions.filter(i => i.type && i.type.includes('國小')).length, [institutions]);
+  const preCount = useMemo(() => institutions.filter(i => i.type && i.type.includes('幼兒園')).length, [institutions]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       {/* Search & Filter Bar */}
