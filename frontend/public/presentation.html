@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新北市校園治理情報平台 - AWS 黑客松競賽提案簡報</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --dark: #0f172a;
+      --slate: #334155;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      background: #090d16;
+      color: var(--dark);
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Presentation Container (16:9 Aspect Ratio) */
+    .deck-container {
+      width: 100vw;
+      max-width: 1400px;
+      height: 100vh;
+      max-height: 787.5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      padding: 20px;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      padding: 44px 52px;
+      position: relative;
+      flex-direction: column;
+      animation: fadeIn 0.3s ease-out;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Header */
+    .slide-header {
+      margin-bottom: 24px;
+    }
+
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .slide-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Slide Content Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-subtitle {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .card-body {
+      font-size: 0.92rem;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      position: fixed;
+      bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      z-index: 100;
+      color: white;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-ctrl {
+      background: #334155;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn-ctrl:hover {
+      background: var(--primary);
+    }
+
+    .page-indicator {
+      font-size: 0.9rem;
+      font-weight: 700;
+      min-width: 70px;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .page-indicator span {
+      color: white;
+    }
+
+    /* Cover Slide Styling */
+    .cover-slide {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: white;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(37, 99, 235, 0.5);
+      color: #93c5fd;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .cover-title {
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cover-subtitle {
+      font-size: 1.2rem;
+      color: #94a3b8;
+      max-width: 850px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 24px;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+
+    /* Architecture diagram styling */
+    .code-arch {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: 'Consolas', monospace;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* Print styles for export to PDF (Ctrl + P) */
+    @media print {
+      body {
+        background: white;
+      }
+      .controls-bar {
+        display: none !important;
+      }
+      .deck-container {
+        width: 100%;
+        max-width: none;
+        height: auto;
+        max-height: none;
+        padding: 0;
+      }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+        padding: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck-container">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide cover-slide active" id="slide-1">
+    <div class="cover-badge">
+      <span>🏆</span> 2026 AWS 黑客松競賽提案 ｜ 命題類別：教保機構風險監測（教育局）
+    </div>
+    <h1 class="cover-title">新北市校園治理情報平台<br><span style="font-size: 2.1rem; font-weight:700; opacity:0.9;">Smart Watchdog</span></h1>
+    <p class="cover-subtitle">
+      全台首創・以數據驅動與生成式 AI 輔助之學前幼托與 K-12 校園多維治理與事前風險預警決策支援系統
+    </p>
+    <div class="cover-meta">
+      <div><strong>提案團隊：</strong> TKU 數據治理先鋒隊</div>
+      <div><strong>指定雲端區域：</strong> AWS us-west-2 (Oregon)</div>
+      <div><strong>交付日期：</strong> 2026 年 9 月</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: PAIN POINTS -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <div class="slide-tag">PART 1 ｜ 命題背景</div>
+      <h2 class="slide-title">問題痛點與專案目標 (Pain Points & Objective)</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card" style="border-top: 4px solid var(--red);">
+        <div class="card-title">🚨 痛點一：事後被動申訴</div>
+        <div class="card-subtitle">重大案件爆發前無預警</div>
+        <div class="card-body">
+          傳統校園監理高度仰賴家長事後檢舉或媒體爆料。當超收幼兒（如 1:15 違規超收達 28 人）、黑牌教保員未核備、不當管教案件浮出水面時，孩童身心往往已遭受實質傷害，主管機關疲於奔命。
+        </div>
+      </div>
+      <div class="card" style="border-top: 4px solid var(--amber);">
+        <div class="card-title">📂 痛點二：局處資料孤島</div>
+        <div class="card-subtitle">官方數據散落各處未打通</div>
+        <div class="card-body">
+          裁罰歷程、食安食材登錄平台、政府採購網工程標案、消防安全檢查清單、師生保險以及 Google Places 家長社群評價分散於不同資料庫，缺乏全景多維畫像，無法跨維度交叉勾稽潛藏風險。
+        </div>
+      </div>
+      <div class="card" style="border-top: 4px solid var(--primary);">
+        <div class="card-title">⏳ 痛點三：稽查人力有限</div>
+        <div class="card-subtitle">新北 1,500+ 機構龐大負荷</div>
+        <div class="card-body">
+          新北市幅員 29 區，學校與幼托總數超過 1,500 所，專任稽查員難以執行全面地毯式普查。急需「AI 智慧風險分級」，精準定位前 6% 高風險機構，將有限公務行政能量投放在最關鍵刀口上。
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 2 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: 5D GOVERNANCE MODEL -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <div class="slide-tag">PART 2 ｜ 解決方案說明</div>
+      <h2 class="slide-title">核心架構：5D 校園多維治理與風險預警模型</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color: var(--primary);">🎯 獨創 5D 校園治理全景指標</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+          <div><strong>1. 裁罰法規違規維度 (35%)：</strong> 累計違規處分字號、超收人數、黑牌教保員記點。</div>
+          <div><strong>2. 班佛採購財務維度 (20%)：</strong> 採購食材與校舍工程合約，首創 Benford's Law 假帳防弊。</div>
+          <div><strong>3. 社群負面輿情維度 (20%)：</strong> Google Places 家長評價 NLP 情感分析與負向投訴探勘。</div>
+          <div><strong>4. 師資異動流動維度 (15%)：</strong> 核心師資離退流動率異常、投保核備合規性追蹤。</div>
+          <div><strong>5. 環境公安食安維度 (10%)：</strong> 校舍防墜網合格驗證、午餐廚房 48 小時留樣履歷。</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚦 智慧三級風險分流梯隊（新北 468 所實測）</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 12px; margin-top: 6px;">
+          <div style="background: #fee2e2; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #dc2626;">
+            <div style="font-weight: 700; color: #b91c1c;">🔴 第一級：高風險對象 (28 所 / 6%) 【重點突擊稽查】</div>
+            <div style="font-size: 0.83rem; color: #7f1d1d; margin-top: 4px;">綜合評分 72~88 分。涉及重大超收（如超收 28 人裁罰 18 萬）、不當管教查證屬實或假帳警示。教育局排定 3 日內現場突擊檢查。</div>
+          </div>
+          <div style="background: #fef3c7; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #d97706;">
+            <div style="font-weight: 700; color: #92400e;">🟡 第二級：中風險對象 (56 所 / 12%) 【專案抽查輔導】</div>
+            <div style="font-size: 0.83rem; color: #78350f; margin-top: 4px;">綜合評分 48~65 分。偶發行政申報延宕、防墜網微損限期修復、食材漏登。列入次學期優先抽檢輔導名冊。</div>
+          </div>
+          <div style="background: #dcfce7; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #16a34a;">
+            <div style="font-weight: 700; color: #166534;">🟢 第三級：低風險對象 (384 所 / 82%) 【常態例行備查】</div>
+            <div style="font-size: 0.83rem; color: #14532d; margin-top: 4px;">綜合評分 15~36 分。營運良好、合規透明、各項食安與公安設施齊備之模範學校。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 3 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: DATA & METHODOLOGY -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <div class="slide-tag">PART 3 ｜ 數據及資料運用</div>
+      <h2 class="slide-title">數據治理與核心演算法 (Data Sources & Methodology)</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color: var(--primary);">📥 四大多源異質官方數據匯流</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>1. 教育部全國教保資訊網 API：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">串接幼托立案登記、核定招收人數、歷史裁罰處分字號與違反法條。</div>
+          </div>
+          <div>
+            <strong>2. 新北市政府開放資料平台 (NTPC Open Data)：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">整合新北 29 區公私立高中職、國中、國小規模、學區與營養午餐合約。</div>
+          </div>
+          <div>
+            <strong>3. 政府電子採購網 (e-Procurement)：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">擷取大宗食材、設施採購與校舍防墜工程招標決標金額（供防弊分析）。</div>
+          </div>
+          <div>
+            <strong>4. Google Places & Maps API：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">採集家長真實評分（1~5星）、評論則數與最新留言文本進行自然語言分析。</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚙️ 核心演算法與分析模型</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong style="color: var(--primary);">📊 班佛定律 (Benford's Law) 財務異常檢定：</strong>
+            <div style="font-size: 0.84rem; color: var(--slate); margin-top: 2px;">
+              分析採購合約與代辦費金額首位數字機率分佈。若卡方檢定 p &lt; 0.05 且首位集中於特定數字，自動觸發人為假帳與刻意拆單告警。
+            </div>
+          </div>
+          <div>
+            <strong style="color: var(--primary);">📐 多因子動態風險評估權重模型：</strong>
+            <div style="font-size: 0.84rem; color: var(--slate); margin-top: 2px;">
+              綜合治理指數 = 裁罰 (35%) + 班佛 (20%) + 輿情 (20%) + 師生比 (15%) + 公安 (10%)，動態量化為 0~100 分。
+            </div>
+          </div>
+          <div>
+            <strong style="color: var(--primary);">💬 NLP 負面情感與違規關鍵字探勘：</strong>
+            <div style="font-size: 0.84rem; color: var(--slate); margin-top: 2px;">
+              自動比對「超收、體罰、推搡、未核備、拉肚子、髒亂」等負向關鍵詞，提早發掘潛在未爆彈。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 4 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: AWS ARCHITECTURE -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div class="slide-tag">PART 4 ｜ AWS 雲端技術架構</div>
+      <h2 class="slide-title">AWS 全端雲端架構與大會安全規範檢核</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="padding: 14px;">
+        <div class="card-title" style="color: var(--primary); font-size: 1.02rem;">🏛️ AWS 雲端拓撲架構圖</div>
+        <div class="code-arch">[ 終端使用者 / 家長 / 教育局稽查官 ]
+        │ (HTTPS TLS 1.3)
+        ▼
+┌──────────────────────────────────────────────┐
+│ Amazon CloudFront (全球 CDN + AWS WAF 防火牆)│ (唯一公開入口)
+└───────────────┬──────────────────────────────┘
+                │
+     ┌──────────┴──────────┐
+(靜態 SPA 前端)            │ (動態 API: /api/*)
+     ▼                     ▼
+┌──────────────┐   ┌───────────────────────────┐
+│  Amazon S3   │   │ Application Load Balancer │
+│ (Block Public│   └─────────────┬─────────────┘
+│  Access 開啟)│                 │ (私有 VPC 轉發)
+│ 透過 OAC 授權│                 ▼
+└──────────────┘   ┌───────────────────────────┐
+                   │ Amazon ECS Fargate 容器叢集│ (FastAPI 後端)
+                   └───────┬───────────┬───────┘
+                           │           │
+            ┌──────────────┘           └──────────────┐
+            ▼                                         ▼
+┌─────────────────────────┐               ┌─────────────────────────┐
+│ Amazon Aurora RDS       │               │ Amazon Bedrock          │
+│ (PostgreSQL 引擎)       │               │ (Claude 3.5 Sonnet 模型)│
+│ (Private Subnet 禁外網) │               │ (嚴格限流: RPS &lt;= 1)    │
+│ 儲存新北 468 所校園數據  │               │ 自動產出突擊稽查指示手冊│
+└─────────────────────────┘               └─────────────────────────┘</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color: var(--green);">🛡️ 100% 恪遵大會安全規範檢核清單</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+          <div>
+            <strong>✅ 1. S3 阻斷公用存取 (Block Public Access)：</strong>
+            <div style="font-size: 0.8rem; color: var(--muted);">符合規範第 1 條，S3 關閉所有公網存取，僅允許 CloudFront 透過 OAC 憑證讀取靜態網頁。</div>
+          </div>
+          <div>
+            <strong>✅ 2. 部署於指定主要區域 (Region)：</strong>
+            <div style="font-size: 0.8rem; color: var(--muted);">符合規範第 6 條，系統統一規劃部署於 AWS us-west-2 (Oregon) 區域。</div>
+          </div>
+          <div>
+            <strong>✅ 3. 零個人敏感個資安全政策 (No PII)：</strong>
+            <div style="font-size: 0.8rem; color: var(--muted);">符合規範第 2 條，僅收錄政府公開之機構立案、公告處分與公開評價，零收錄個人隱私資料。</div>
+          </div>
+          <div>
+            <strong>✅ 4. 關閉資料庫公開存取 (Private DB)：</strong>
+            <div style="font-size: 0.8rem; color: var(--muted);">符合規範第 4 條，Aurora 資料庫封裝於 VPC 私有子網，Security Group 嚴禁公網直接存取。</div>
+          </div>
+          <div>
+            <strong>✅ 5. Amazon Bedrock 嚴格限流 (RPS &lt;= 1)：</strong>
+            <div style="font-size: 0.8rem; color: var(--muted);">符合 Bedrock 規範第 1 條，後端內建令牌桶節流演算法，請求嚴格控制在每秒 1 次以下。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 5 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: UI & GIS MAP -->
+  <div class="slide" id="slide-6">
+    <div class="slide-header">
+      <div class="slide-tag">PART 5 ｜ 解決方案使用介面</div>
+      <h2 class="slide-title">GIS 地理資訊熱點地圖與機構治理名冊</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color: var(--primary);">🗺️ 新北 GIS 地理資訊熱點地圖</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>• 新北全境 29 行政區快選膠囊：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">支援板橋、新莊、中和、永和、淡水、林口等 29 區一鍵縮放與熱點聚合。</div>
+          </div>
+          <div>
+            <strong>• 四大全學制維度自由切換：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">即時切換「全部學制」、「高中職 (48 所)」、「國中 (63 所)」、「國小 (164 所)」、「幼兒園 (193 所)」。</div>
+          </div>
+          <div>
+            <strong>• 風險等級色彩動態分流：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">紅標（高風險）、黃標（中風險）、綠標（合格優良）清晰標記地圖圖標。</div>
+          </div>
+          <div>
+            <strong>• 點擊彈出機構全維體檢卡：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">即刻查看綜合風險分數、核定收托容量、食安合格狀態與真實聯絡電話。</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 機構治理名冊與 5D 抽屜詳情 (AuditDrawer)</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>• 全方位多維複合篩選列：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">支援行政區下拉、學制下拉、風險等級過濾與關鍵字模糊搜尋。</div>
+          </div>
+          <div>
+            <strong>• 一鍵過濾「高風險警示名單」：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">即時過濾出 28 所問題學校與幼托，快速提供主管機關排定優先行動。</div>
+          </div>
+          <div>
+            <strong>• 深度稽查側邊抽屜 (AuditDrawer)：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">點擊任一學校即可展開查看官方處分字號、裁罰歷程、現場檢核清單。</div>
+          </div>
+          <div>
+            <strong>• 整合班佛採購分析與 Google 評價：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">首創將公務採購合約檢定結果與家長評論情感圖表直接視覺化。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 6 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WORKFLOW & RADAR COMPARE -->
+  <div class="slide" id="slide-7">
+    <div class="slide-header">
+      <div class="slide-tag">PART 6 ｜ 操作流程與雙校對比</div>
+      <h2 class="slide-title">教育局日常操作流程與雙校深度對比</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color: var(--primary);">🔄 教育局風險監測四步作業流程</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>Step 1. 全市儀表板宏觀盤點：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">局端官員檢視 468 所學校風險總覽、高風險數量 (28 所) 與累計處分統計。</div>
+          </div>
+          <div>
+            <strong>Step 2. 鎖定高風險異常對象：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">篩選出紅標 28 所對象，檢視其違規類型（如超收 28 人、採購假帳異常）。</div>
+          </div>
+          <div>
+            <strong>Step 3. 雙校雷達指標差異分析：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">挑選同行政區兩所機構進行五維雷達對比，找出管理弱項。</div>
+          </div>
+          <div>
+            <strong>Step 4. 自動生成現場稽查工單：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">由 AI 生成突擊稽查重點，派遣公安食安聯合督導小組出勤。</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚖️ 雙校五維雷達深度對比模組</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>• 跨學制／同區橫向比對：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">支援新北任意兩所學校比對，例如「板橋高中 vs 新莊高中」或「海山國小 vs 秀朗國小」。</div>
+          </div>
+          <div>
+            <strong>• 5 軸雷達指標直觀重疊繪製：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">清晰看出兩校在「法規裁罰、班佛財務、社群輿情、師資流動、公安食安」的落差面積。</div>
+          </div>
+          <div>
+            <strong>• 高風險 vs 低風險對比對照：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">紅標機構五維面積顯著擴大，幫助稽查官一眼鎖定關鍵缺失問題。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 7 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: AI & WHISTLEBLOWER -->
+  <div class="slide" id="slide-8">
+    <div class="slide-header">
+      <div class="slide-tag">PART 7 ｜ 創新亮點功能</div>
+      <h2 class="slide-title">AI 智慧稽查室與全民吹哨者存證機制</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color: var(--primary);">🤖 Amazon Bedrock 賦能 AI 智慧稽查室</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>• 一鍵產出客製化突擊稽查手冊：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">依據該機構過往裁罰歷史，自動生成現場稽查重點（如清查現場人數、調閱指定時段監視器）。</div>
+          </div>
+          <div>
+            <strong>• 法規法條智慧援引與處分建議：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">精準對應《幼兒教育及照顧法》第 38/51 條或《學校衛生法》，提供主管機關執法處分建議。</div>
+          </div>
+          <div>
+            <strong>• 內建 1 RPS 節流保護：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">完全符合大會 Bedrock RPS &lt;= 1 限制，保障系統高穩定性。</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🛡️ 全民監督：匿名吹哨者檢舉通道</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div>
+            <strong>• SHA-256 防偽雜湊鏈上存證：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">檢舉文件與事證自動生成唯一加密雜湊（Hash Code），防止案件遭人為吃案或竄改。</div>
+          </div>
+          <div>
+            <strong>• 去識別化個人保護架構：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">檢舉人可選擇完全匿名申報，嚴格保護內部教保員或家長隱私安全。</div>
+          </div>
+          <div>
+            <strong>• 即時權重動態回饋：</strong>
+            <div style="font-size: 0.84rem; color: var(--muted);">通過查證屬實之檢舉案自動納入機構風險權重，動態刷新監測燈號。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 8 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: IMPACT & BENEFITS -->
+  <div class="slide" id="slide-9">
+    <div class="slide-header">
+      <div class="slide-tag">PART 8 ｜ 預期效益與社會價值</div>
+      <h2 class="slide-title">預期效益與社會影響力 (Expected Impact)</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">🏛️ 對教育局監理端</div>
+        <div class="card-subtitle" style="color: var(--green); font-size: 1.1rem;">稽查效率提升 300%</div>
+        <div class="card-body">
+          從漫無目的的隨機抽查，升級為以數據驅動的「精準前瞻打擊」，有效降低公務資源浪費，事前遏止惡性違規。
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🏫 對校園與教保機構</div>
+        <div class="card-subtitle" style="color: var(--primary); font-size: 1.1rem;">促進行政自主合規</div>
+        <div class="card-body">
+          建立公開透明的 5D 評核標竿，促使業者自主加強師生比合規、食材溯源管理與落實反霸凌防墜措施。
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">👨‍👩‍👧 對家長與學子</div>
+        <div class="card-subtitle" style="color: var(--amber); font-size: 1.1rem;">安心就學與資訊對稱</div>
+        <div class="card-body">
+          一站式透明查詢學校真實體檢歷史與常規狀況，破除廣告包裝迷思，守護新北市 40 萬學童安全成長。
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 9 / 10 頁</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: DELIVERABLES & SUMMARY -->
+  <div class="slide" id="slide-10">
+    <div class="slide-header">
+      <div class="slide-tag">PART 9 ｜ 總結與成果交付</div>
+      <h2 class="slide-title">競賽成果交付清單 (Deliverables & Summary)</h2>
+    </div>
+    <div class="card" style="padding: 24px; background: white;">
+      <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 14px;">
+        🎯 本專案完整成果交付清單（符合競賽 6 大繳交規範）
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 0.9rem;">
+        <div style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--primary);">
+          <strong>1. 解決方案說明：</strong> 完整撰寫於提案簡報與 GitHub README（5D 治理指標、班佛定律防弊）
+        </div>
+        <div style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--primary);">
+          <strong>2. 數據及資料運用：</strong> 整合教育部、新北 Open Data、採購網與 Google 評價，收錄新北 468 所真實校園
+        </div>
+        <div style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--green);">
+          <strong>3. AWS 雲端技術架構：</strong> 嚴格符合 S3 Block Public Access、VPC Private Subnet、Bedrock RPS&lt;=1
+        </div>
+        <div style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--green);">
+          <strong>4. Live Demo 部署網址：</strong> <a href="https://helpful-alcohol-stud-scout.trycloudflare.com" target="_blank" style="color: var(--primary);">https://helpful-alcohol-stud-scout.trycloudflare.com</a>
+        </div>
+        <div style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--amber);">
+          <strong>5. 提案簡報檔案：</strong> 包含 <code>新北市校園治理情報平台_提案簡報.pptx</code> 及高解析度 HTML/PDF
+        </div>
+        <div style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--amber);">
+          <strong>6. GitHub 完整原始碼：</strong> <a href="https://github.com/oscarlin9398-debug/smart-watchdog" target="_blank" style="color: var(--primary);">https://github.com/oscarlin9398-debug/smart-watchdog</a>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 24px; font-size: 1.35rem; font-weight: 800; color: var(--primary);">
+        感謝評審委員聆聽，敬請指教！ Q & A
+      </div>
+    </div>
+    <div class="slide-footer">
+      <div>新北市校園治理情報平台 Smart Watchdog</div>
+      <div>第 10 / 10 頁</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation Controls -->
+<div class="controls-bar">
+  <button class="btn-ctrl" onclick="prevSlide()">◀ 上一頁</button>
+  <div class="page-indicator"><span id="curr-slide">1</span> / <span id="total-slides">10</span></div>
+  <button class="btn-ctrl" onclick="nextSlide()">下一頁 ▶</button>
+  <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+  <button class="btn-ctrl" onclick="window.print()" title="另存為 PDF">🖨️ 匯出 PDF</button>
+  <button class="btn-ctrl" onclick="location.href='/'" title="回到平台">🏠 回到平台</button>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 10;
+
+  function showSlide(n) {
+    if (n < 1) n = 1;
+    if (n > totalSlides) n = totalSlides;
+    currentSlide = n;
+
+    document.querySelectorAll('.slide').forEach((s, idx) => {
+      s.classList.remove('active');
+      if (idx + 1 === currentSlide) {
+        s.classList.add('active');
+      }
+    });
+
+    document.getElementById('curr-slide').innerText = currentSlide;
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides) {
+      showSlide(currentSlide + 1);
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 1) {
+      showSlide(currentSlide - 1);
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key === 'Home') {
+      showSlide(1);
+    } else if (e.key === 'End') {
+      showSlide(totalSlides);
+    }
+  });
+
+  document.getElementById('total-slides').innerText = totalSlides;
+</script>
+
+</body>
+</html>
