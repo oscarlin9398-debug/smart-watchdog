@@ -7,8 +7,6 @@
 ## 🎯 競賽成果交付快速連結 (Quick Links & Deliverables)
 
 - 🌐 **Live Demo 線上展示網址（AWS 正式部署）**：[https://dl0s1ajl0os3y.cloudfront.net](https://dl0s1ajl0os3y.cloudfront.net)（僅開放白名單 IP，見下方 AWS 架構章節）
-- 📊 **競賽提案簡報線上版 (HTML / 16:9 投影片)**：`/presentation.html`
-- 📥 **競賽提案簡報 PPTX 檔案下載**：[`新北市校園治理情報平台_提案簡報.pptx`](./新北市校園治理情報平台_提案簡報.pptx)
 - 💻 **GitHub 完整原始碼庫**：[https://github.com/LywMD/smart-watchdog](https://github.com/LywMD/smart-watchdog)
 
 ---

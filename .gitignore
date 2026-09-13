@@ -32,3 +32,11 @@ yarn-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+
+# Presentation and internal scripts
+*.pptx
+*.ppt
+*簡報*
+*講稿*
+presentation.html
+frontend/public/presentation.html

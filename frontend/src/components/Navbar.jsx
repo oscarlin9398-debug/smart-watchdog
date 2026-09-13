@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Map, BarChart2, Search, Scale, MessageSquare, AlertCircle, GraduationCap, Presentation } from 'lucide-react';
+import { ShieldCheck, Map, BarChart2, Search, Scale, MessageSquare, AlertCircle, GraduationCap } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, stats, onOpenReport }) {
   return (
@@ -88,33 +88,6 @@ export default function Navbar({ activeTab, setActiveTab, stats, onOpenReport })
             </button>
           </nav>
 
-          {/* Presentation Deck Button */}
-          <a
-            href="/presentation.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: '7px 13px',
-              borderRadius: 'var(--radius-full)',
-              background: '#eff6ff',
-              border: '1px solid #bfdbfe',
-              color: '#1d4ed8',
-              fontSize: '0.8rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              textDecoration: 'none',
-              boxShadow: '0 1px 2px rgba(37, 99, 235, 0.08)',
-              transition: 'all 0.16s ease'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.background = '#dbeafe'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = '#eff6ff'; }}
-            title="開啟競賽提案簡報 (16:9 投影片)"
-          >
-            <Presentation size={15} /> 提案簡報
-          </a>
 
           {/* Citizen Incident Report Button */}
           <button
