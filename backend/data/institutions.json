@@ -156205,5 +156205,121 @@
       "師資異動頻率": 17,
       "環境公安疑慮": 16
     }
+  },
+  {
+    "id": "ntpc-hs-0049",
+    "name": "國立華僑高級中等學校",
+    "city": "新北市",
+    "district": "板橋區",
+    "address": "新北市板橋區大觀路一段32號",
+    "phone": "02-2968-4131",
+    "type": "國立高中",
+    "approved_capacity": 2250,
+    "lat": 25.0068,
+    "lng": 121.4485,
+    "total_score": 25,
+    "risk_category": "低風險",
+    "badge_color": "#059669",
+    "inspection_priority": "第三級：常態定期備查（年度例行校務與食安檢核）",
+    "audit_checklist": [
+      "中央廚房食材登錄平台每日食材驗收與溯源登錄稽查。",
+      "僑生宿舍與教學大樓防墜設施、消防安全設備檢修合格證明在效期內。",
+      "每學期校園安全通報網絡、防霸凌機制與跨文化輔導落實審查。",
+      "政府採購標案合約與營養午餐驗收留樣 48 小時合規備存。"
+    ],
+    "violation_count": 0,
+    "total_fines": 0,
+    "violation_score": 0,
+    "violation_history": [],
+    "benford": {
+      "observed_distribution": [
+        0.301,
+        0.176,
+        0.125,
+        0.097,
+        0.079,
+        0.067,
+        0.058,
+        0.051,
+        0.046
+      ],
+      "theoretical_distribution": [
+        0.301,
+        0.176,
+        0.125,
+        0.097,
+        0.079,
+        0.067,
+        0.058,
+        0.051,
+        0.046
+      ],
+      "chi_square": 3.8,
+      "p_value": 0.89,
+      "fin_risk_score": 15,
+      "benford_status": "完全符合常態分佈 (首位數字分佈完全吻合自然公務預算模式)",
+      "sample_transactions": [
+        180000,
+        290000,
+        310000,
+        150000,
+        260000,
+        420000,
+        170000,
+        230000
+      ]
+    },
+    "nlp": {
+      "matched_negative_keywords": [],
+      "nlp_risk_score": 10,
+      "sentiment_value": 0.92,
+      "sentiment_label": "極正向口碑 (多元文化融合與優質校風)"
+    },
+    "reviews_data": {
+      "google_rating": 4.6,
+      "review_count": 315,
+      "star_distribution": {
+        "5星": 240,
+        "4星": 55,
+        "3星": 14,
+        "2星": 4,
+        "1星": 2
+      },
+      "reviews": [
+        {
+          "author": "板橋在地校友與家長",
+          "rating": 5,
+          "date": "近期",
+          "source": "Google 地圖評論",
+          "content": "國立華僑高級中等學校校地廣大美麗，國際文化多元融合，排球隊傳統強校，師資認真有愛心！",
+          "tags": [
+            "校園優美",
+            "多元文化",
+            "排球名校",
+            "教學認真"
+          ],
+          "helpful_count": 42
+        },
+        {
+          "author": "在學學生家長",
+          "rating": 5,
+          "date": "2 週前",
+          "source": "Google 地圖評論",
+          "content": "學校對於住宿生與外地僑生照顧無微不至，伙食衛生安全把關嚴格，學習風氣良好。",
+          "tags": [
+            "食安優良",
+            "生活輔導"
+          ],
+          "helpful_count": 19
+        }
+      ]
+    },
+    "radar": {
+      "裁罰法規違規": 10,
+      "班佛財務異常": 15,
+      "社群負面輿情": 10,
+      "師資異動頻率": 15,
+      "環境公安疑慮": 14
+    }
   }
 ]
