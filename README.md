@@ -1,15 +1,15 @@
 # 新北市校園治理情報平台 (Smart Watchdog)
-> **競賽命題：教保機構風險監測：教育局**  
+> **競賽命題：教保機構風險監測：教育局**
 > 全台首創・以數據驅動與生成式 AI 輔助之學前幼托與 K-12 校園多維治理與事前風險預警系統
 
 ---
 
 ## 🎯 競賽成果交付快速連結 (Quick Links & Deliverables)
 
-- 🌐 **Live Demo 線上展示網址**：[https://helpful-alcohol-stud-scout.trycloudflare.com](https://helpful-alcohol-stud-scout.trycloudflare.com)
-- 📊 **競賽提案簡報線上版 (HTML / 16:9 投影片)**：[https://helpful-alcohol-stud-scout.trycloudflare.com/presentation.html](https://helpful-alcohol-stud-scout.trycloudflare.com/presentation.html)
+- 🌐 **Live Demo 線上展示網址（AWS 正式部署）**：[https://dl0s1ajl0os3y.cloudfront.net](https://dl0s1ajl0os3y.cloudfront.net)（僅開放白名單 IP，見下方 AWS 架構章節）
+- 📊 **競賽提案簡報線上版 (HTML / 16:9 投影片)**：`/presentation.html`
 - 📥 **競賽提案簡報 PPTX 檔案下載**：[`新北市校園治理情報平台_提案簡報.pptx`](./新北市校園治理情報平台_提案簡報.pptx)
-- 💻 **GitHub 完整原始碼庫**：[https://github.com/oscarlin9398-debug/smart-watchdog](https://github.com/oscarlin9398-debug/smart-watchdog)
+- 💻 **GitHub 完整原始碼庫**：[https://github.com/LywMD/smart-watchdog](https://github.com/LywMD/smart-watchdog)
 
 ---
 
@@ -17,10 +17,11 @@
 
 本專案「**新北市校園治理情報平台**（Smart Watchdog）」專為**新北市政府教育局「教保機構風險監測」**命題量身打造。新北市幅員廣大、人口逾 400 萬，涵蓋 29 個行政區，各級公私立高中職、國中、國小與幼兒園多達 1,500 餘所。
 
-### 🚨 現行傳統校園治理之三大痛點
-1. **事後被動申訴，為時已晚**：傳統稽查高度依賴家長事後申訴或重大媒體爆料（如 1:15 違規超收達 28 人、黑牌教保員未核備、不當管教案件），主管機關常處於被動滅火狀態，孩童身心已受傷害。
-2. **局處資料孤島，查核斷鏈**：教育處分歷程、校園午餐食材登錄平台、政府採購網招決標、公安消防安檢與 Google Places 家長社群評價散落不同系統，缺乏橫向打通與綜合研判畫像。
-3. **稽查人力有限，難以地毯式普查**：專任稽查員難以進行高頻率地毯式普查，急需「AI 智慧分級標註」，將有限公務行政能量優先投放在高風險機構。
+### 🚨 待解決問題、需求或痛點
+1. **資料分散與整合困難**：相關基本資料、評鑑、裁罰、收費明細及決算或財務報告，雖為網站公開資訊，但缺乏整合分析機制，且未納入社群即時輿情，難以形成完整風險判斷基礎。
+2. **財務異常難以及早發現**：公共化幼兒園之決算或財務報告雖依法規公告，但缺乏與其他資訊（如收費明細、園所基本資料等）交叉分析偵測異常。
+3. **風險辨識與預警能力不足**：缺乏標準化、可量化的風險評估工具，無法從大量機構中有效篩選出需優先關注的高風險對象。
+4. **人力負擔重與決策支援不足**：機構數量眾多，仰賴人工篩選與判斷耗時費力，且缺乏數據支持的資源配置決策依據。
 
 ---
 
@@ -30,16 +31,16 @@
 
 | 維度名稱 | 權重 | 核心評估項目與數據特徵 |
 | :--- | :---: | :--- |
-| **1. 裁罰法規違規維度** | **35%** | 累計違規處分字號、超收幼童人數（如超收 28 人）、黑牌未核備教保員記點、違反《幼照法》條次 |
+| **1. 裁罰法規違規維度** | **35%** | 累計違規處分字號、超收幼童人數、黑牌未核備教保員記點、違反《幼照法》條次 |
 | **2. 班佛採購財務維度** | **20%** | 大宗營養午餐食材與校舍修繕合約，首創 **班佛定律 (Benford's Law)** 首位數字頻率卡方檢定，防範人為拆單假帳 |
 | **3. 社群負面輿情維度** | **20%** | Google Places 公開評價與家長留言文本，運用 NLP 情感分析與負向詞彙（超收、體罰、髒亂、腹瀉）探勘 |
 | **4. 師資異動流動維度** | **15%** | 核心師資年度流動率異常、教保員投保與在職核備名冊合規性追蹤 |
 | **5. 環境公安食安維度** | **10%** | 校舍防墜設施檢驗合格證明、營養午餐廚房 48 小時留樣檢驗履歷 |
 
-### 🚦 三級風險智慧分流（新北市 468 所實測分布）
-- 🔴 **高風險機構（28 所 / 6%）**：綜合評分 72~88 分，涉及重大超收（裁罰 18 萬）、不當管教查證屬實或採購假帳異常。系統自動列入【3 日內重點突擊稽查】。
-- 🟡 **中風險機構（56 所 / 12%）**：綜合評分 48~65 分，偶發行政申報延宕、防墜設施微損限期改善。列入【次學期專案抽查輔導】。
-- 🟢 **低風險機構（384 所 / 82%）**：綜合評分 15~36 分，營運良好、各項食安公安齊備之模範學校。列入【常態例行備查】。
+### 🚦 三級風險智慧分流
+- 🔴 **高風險機構**：綜合評分達門檻，涉及重大超收、不當管教查證屬實或採購假帳異常。系統自動列入【重點突擊稽查】。
+- 🟡 **中風險機構**：偶發行政申報延宕、防墜設施微損限期改善。列入【專案抽查輔導】。
+- 🟢 **低風險機構**：營運良好、各項食安公安齊備。列入【常態例行備查】。
 
 ---
 
@@ -48,14 +49,16 @@
 本平台無縫整合四大公私領域多源異質官方數據：
 1. **教育部全國教保資訊網 API**：立案登記許可、核定收托人數、裁罰處分字號與違反法條。
 2. **新北市政府開放資料平台 (NTPC Open Data)**：新北 29 區公私立高中、國中、國小規模、學區與午餐合約。
-3. **行政院政府電子採購網 (e-Procurement)**：大宗食材、設施採購與防墜工程之招標決標金額。
-4. **Google Places & Maps API**：家長真實星等（1~5星）、評論則數與最新留言文本。
+3. **行政院政府電子採購網 (e-Procurement)**：大宗食材、設施採購與防墜工程之招標決標金額（導入班佛定律檢定防弊）。
+4. **Google Places & Maps API**：家長真實星等（1~5星）、評論則數與最新留言文本，供 NLP 情感分析。
 
 ---
 
 ## ☁️ 四、AWS 雲端技術架構 (AWS Cloud Architecture)
 
-平台採用現代化 Serverless 與容器微服務架構，全端完全符合 **AWS Hackathon 官方規範**：
+### 目標正式架構 (Target Production Architecture)
+
+平台規劃採現代化 Serverless 與容器微服務架構：
 
 ```
 [ 終端使用者 / 家長 / 教育局官員 ]
@@ -81,38 +84,63 @@
             ▼                                         ▼
 ┌─────────────────────────┐               ┌─────────────────────────┐
 │ Amazon Aurora RDS       │               │ Amazon Bedrock          │
-│ (PostgreSQL 引擎)       │               │ (Claude 3.5 Sonnet 模型)│
-│ (Private Subnet 禁外網) │               │ (嚴格限流: RPS <= 1)    │
-│ 儲存新北 468 所校園數據  │               │ 自動產出突擊稽查指示手冊│
+│ (PostgreSQL 引擎)       │               │ (Claude 模型)           │
+│ (Private Subnet 禁外網) │               │ 自動產出突擊稽查指示手冊│
 └─────────────────────────┘               └─────────────────────────┘
 ```
 
-### 🛡️ 大會安全性與合規性保證
-- ✅ **S3 Block Public Access 阻斷公用存取**：所有 S3 儲存桶全數啟用阻斷公開存取，僅允許 Amazon CloudFront 透過 Origin Access Control (OAC) 憑證讀取。
-- ✅ **零個人敏感個資 (No PII)**：嚴格遵循個人資料保護法，僅收錄公開機構資訊與公告違規紀錄，零儲存個人隱私數據。
-- ✅ **資料庫私有子網 (Private DB)**：Amazon Aurora RDS 部署於 VPC 私有子網，Security Group 嚴禁公網直連。
-- ✅ **Amazon Bedrock 嚴格節流 (RPS <= 1)**：後端以 Token Bucket 演算法精準限流，每次對話嚴格限制於每秒 1 請求以內。
-- ✅ **指定主區域 (Region)**：全數架構統一規劃於 **AWS us-west-2 (Oregon)** 區域。
+### ✅ 目前實際部署架構 (Currently Deployed - Lean Version)
+
+比賽 Demo 階段採用精簡版架構落地上線,成本低、部署快,並針對指定 IP 做存取管制:
+
+```text
+[ 白名單 IP (4 組) ]
+        │
+        ▼ (HTTPS)
+[ Amazon CloudFront + AWS WAF (IP 白名單, 預設 Block) ]
+        │
+        ▼
+[ S3 Bucket (私有, 僅 CloudFront OAC 可讀 - React SPA 前端) ]
+
+[ 白名單 IP (4 組) ]
+        │
+        ▼ (HTTPS, API Gateway Resource Policy IP 白名單)
+[ Amazon API Gateway (REST API) ]
+        │
+        ▼
+[ AWS Lambda (Python, 讀取 institutions.json) ]
+```
+
+- 前端網址:`https://dl0s1ajl0os3y.cloudfront.net`
+- 後端 API:`https://6u6ksl5e34.execute-api.us-west-2.amazonaws.com/prod`
+- **白名單 IP**(僅這 4 組可連線,其餘來源會被 WAF / API Gateway 拒絕):`60.250.71.45`、`61.222.117.53`、`59.125.121.41`、`60.250.71.43`
+- 重新部署:執行 [deploy_aws.ps1](deploy_aws.ps1)(重新打包 Lambda、重 build 前端並同步至 S3、清除 CloudFront 快取)
+
+### 🛡️ 安全性與合規性保證
+- ✅ **S3 Block Public Access 阻斷公用存取**:S3 儲存桶全數啟用阻斷公開存取,僅允許 Amazon CloudFront 透過 Origin Access Control (OAC) 憑證讀取。
+- ✅ **來源 IP 白名單管制**:CloudFront 層以 AWS WAF、API Gateway 層以 Resource Policy,雙層限制僅指定 4 組 IP 可連線。
+- ✅ **零個人敏感個資 (No PII)**:嚴格遵循個人資料保護法,僅收錄公開機構資訊與公告違規紀錄,零儲存個人隱私數據。
+- ✅ **指定主區域 (Region)**:前後端統一部署於 **AWS us-west-2 (Oregon)**,WAF (CloudFront scope) 於 us-east-1 全域管理。
 
 ---
 
 ## 💻 五、平台功能特色與介面操作流程
 
-1. **🗺️ 新北市 GIS 地理圖台**：
-   - 支援新北 29 行政區快選膠囊（板橋、新莊、中和、永和、淡水等一鍵縮放）。
-   - 四大學制即時切換：高中職 (48 所)、國中 (63 所)、國小 (164 所)、幼兒園 (193 所)。
-   - 紅黃綠三色即時標註風險熱點，點擊直覺展開學校體檢檔案。
-2. **📋 機構治理名冊與 5D 抽屜詳情 (AuditDrawer)**：
-   - 多維複合篩選（行政區、學制、風險等級、名稱關鍵字搜尋）。
-   - 一鍵篩選「🔴 高風險警示名單」，直接查看裁罰字號、處分事由與現場檢核表。
+1. **🗺️ 新北市 GIS 地理圖台**:
+   - 支援新北 29 行政區快選膠囊(板橋、新莊、中和、永和、淡水等一鍵縮放)。
+   - 四大學制即時切換:高中職、國中、國小、幼兒園。
+   - 紅黃綠三色即時標註風險熱點,點擊直覺展開學校體檢檔案。
+2. **📋 機構治理名冊與 5D 抽屜詳情 (AuditDrawer)**:
+   - 多維複合篩選(行政區、學制、風險等級、名稱關鍵字搜尋)。
+   - 一鍵篩選「🔴 高風險警示名單」,直接查看裁罰字號、處分事由與現場檢核表。
    - 首創「班佛定律採購分析圖」與「家長評價情感雷達圖」同屏呈現。
-3. **⚖️ 雙校五維雷達深度對比**：
-   - 支援跨學制／同區任意兩所學校比對（例如：板橋高中 vs 新莊高中）。
+3. **⚖️ 雙校五維雷達深度對比**:
+   - 支援跨學制/同區任意兩所學校比對。
    - 5 軸雷達重疊圖形化顯示管理強弱項差異。
-4. **🤖 AI 智慧稽查室 (Amazon Bedrock 賦能)**：
-   - 點擊「一鍵產生突擊稽查手冊」，即時條列現場實地盤查項目與《幼照法》對應法條。
-5. **🛡️ 匿名吹哨者通報機制**：
-   - 支援 SHA-256 雜湊防偽存證，去識別化保障檢舉人隱私。
+4. **🤖 AI 智慧稽查室**:
+   - 點擊「一鍵產生突擊稽查手冊」,即時條列現場實地盤查項目與《幼照法》對應法條。
+5. **🛡️ 匿名吹哨者通報機制**:
+   - 支援雜湊防偽存證,去識別化保障檢舉人隱私。
 
 ---
 
@@ -120,35 +148,32 @@
 
 ### 1. 啟動後端 API (FastAPI)
 ```bash
-# 進入後端虛擬環境
-cd smart-watchdog
+cd backend
+pip install fastapi uvicorn pydantic
 python -m uvicorn app:app --port 8000 --reload
 ```
-- 後端服務位址：`http://127.0.0.1:8000`
-- API Swagger 文件：`http://127.0.0.1:8000/docs`
+- 後端服務位址:`http://127.0.0.1:8000`
+- API Swagger 文件:`http://127.0.0.1:8000/docs`
 
 ### 2. 啟動前端介面 (React + Vite)
 ```bash
-cd smart-watchdog/frontend
+cd frontend
 npm install
 npm run dev
 ```
-- 前端網頁位址：`http://localhost:5173`
-- 簡報線上觀看：`http://localhost:5173/presentation.html`
+- 前端網頁位址:`http://localhost:5173`
+- 簡報線上觀看:`http://localhost:5173/presentation.html`
 
 ---
 
-## 🏆 競賽提案簡報目錄 (Slide Deck Outline)
-1. **封面**：新北市校園治理情報平台 Smart Watchdog (AWS 黑客松)
-2. **問題痛點與專案目標**：事後申訴、資料孤島、人力有限
-3. **核心架構**：5D 校園多維治理與風險預警模型
-4. **數據及資料運用**：四大多源異質官方數據與演算法
-5. **AWS 雲端技術架構**：雲端拓撲圖與大會安全規範檢核 (S3 BPA, Private DB, Bedrock RPS<=1)
-6. **使用介面**：GIS 地理資訊熱點地圖與機構治理名冊
-7. **操作流程與雙校對比**：四步作業流程與五維雷達對比
-8. **創新亮點**：Amazon Bedrock AI 智慧稽查室與吹哨者防偽存證
-9. **預期效益與社會影響力**：教育局稽查效率提升 300%、守護 40 萬學童安全
-10. **總結與競賽成果交付清單**：完整 6 大繳交規範對齊
+## 🛠️ 技術棧 (Tech Stack)
+
+- **Frontend**: React 18, Vite, TailwindCSS / Modern Light Theme, Lucide React, Leaflet GIS
+- **Backend**: Python 3.12+, FastAPI, Uvicorn, Pydantic(本地開發);AWS Lambda(雲端部署,見 [lambda_function.py](backend/lambda_function.py))
+- **Data & Analytics**: Pandas, NumPy, Benford's Law Audit Algorithm
+- **AI & Cloud**: AWS S3 / CloudFront / WAF / API Gateway / Lambda,規劃中 AWS Bedrock
 
 ---
-*Developed with ❤️ for 2026 AWS Hackathon by TKU Data Governance Pioneer Team.*
+
+## 📄 授權條款 (License)
+本專案依 MIT License 開源發布,提供教育與競賽評審參考。

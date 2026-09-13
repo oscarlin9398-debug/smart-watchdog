@@ -5,15 +5,11 @@ from pydantic import BaseModel
 from typing import Optional
 import json
 import os
-try:
-    from bedrock_service import bedrock_agent
-except ImportError:
-    from backend.bedrock_service import bedrock_agent
 
 app = FastAPI(
     title="新北市校園治理情報平台 API",
-    description="新北市各級學校與教保機構 治理指標評估與預警系統 API (AWS Bedrock 賦能)",
-    version="3.1.0"
+    description="新北市各級學校與教保機構 智慧風險稽查與預警系統 API",
+    version="3.0.0"
 )
 
 app.add_middleware(
@@ -36,10 +32,8 @@ except Exception as e:
 def read_root():
     ntpc = [i for i in INSTITUTIONS if i.get("city") == "新北市"]
     return {
-        "system": "新北市校園治理情報平台 API (NTPC v3.1)",
+        "system": "新北市校園治理情報平台 API (NTPC v3.0)",
         "status": "online",
-        "cloud_architecture": "AWS us-west-2 (Oregon)",
-        "ai_engine": "Amazon Bedrock (Claude 3.5 Sonnet, RPS<=1)",
         "total_institutions": len(INSTITUTIONS),
         "ntpc_institutions": len(ntpc)
     }
@@ -67,7 +61,7 @@ def get_statistics():
 
 @app.get("/api/institutions")
 def get_institutions(
-    city: str = Query(None, description="縣市"),
+    city: str = Query(None, description="縣市篩選"),
     risk: str = Query(None, description="風險等級"),
     keyword: str = Query(None, description="關鍵字搜尋")
 ):
@@ -102,21 +96,19 @@ def chat_with_agent(req: ChatRequest):
         inst = next((i for i in INSTITUTIONS if i["id"] == req.inst_id), None)
 
     msg = req.message.lower()
-
-    # 若指定機構且包含稽查或手冊關鍵字，透過 AWS Bedrock 引擎產出
     if inst:
-        if any(w in msg for w in ["稽查", "手冊", "清查", "突擊", "報告", "檢查", "處分"]):
-            reply = bedrock_agent.generate_inspection_manual(inst, req.message)
-        elif "班佛" in msg or "財務" in msg:
+        if "稽查" in msg or "突擊" in msg or "清單" in msg:
+            reply = f"【{inst['name']} 突擊稽查指示】\n1. 現場清查在校/園人數，比對核定容量 {inst.get('approved_capacity', 100)} 人。\n2. 調閱最近 30 日監視器錄影，排除死角。\n3. 比對教職員合格證書與勞健保投保名冊。\n4. 查驗中央廚房食材登錄平台與留樣 48 小時合規性。"
+        elif "財務" in msg or "班佛" in msg:
             b_score = inst.get("benford", {}).get("fin_risk_score", 20)
-            b_status = inst.get("benford", {}).get("benford_status", "合格")
-            reply = f"【{inst['name']} 班佛財務分析】\n首位數檢定異常分數：{b_score} 分，狀態：{b_status}。\n建議局端稽查員抽查近六個月大宗食材與代辦費採購標案合約，檢核是否存在人為假帳或刻意拆單規避招標情事。"
+            b_status = inst.get("benford", {}).get("benford_status", "合規")
+            reply = f"【{inst['name']} 班佛財務分析】\n異常指標：{b_score} 分，狀態：{b_status}。\n建議調閱近六個月大宗採購與代辦費收支單據是否相符。"
         else:
-            reply = f"您好！已為您定位【{inst['name']}】。\n該機構綜合治理風險評分：{inst['total_score']} 分（{inst['risk_category']}），累計違規裁處 {inst.get('violation_count', 0)} 次。\n您可以點擊『產生突擊稽查手冊』，AI 將調用 Amazon Bedrock 自動產出即時實地盤查重點清單。"
+            reply = f"針對 {inst['name']}：該機構目前風險總分為 {inst['total_score']} 分（{inst['risk_category']}），累計裁罰 {inst.get('violation_count', 0)} 次。建議參照五維雷達圖評估其校園安全。"
     else:
         ntpc = [x for x in INSTITUTIONS if x.get("city") == "新北市"]
         high_ntpc = [x for x in ntpc if x.get("risk_category") == "高風險"]
-        reply = f"【新北市校園治理 AI 智慧稽查室 (AWS Bedrock Engine)】\n新北市目前列管各級學校與幼托共 {len(ntpc)} 所，其中第一級高風險監控對象共 {len(high_ntpc)} 所（涉及重大師生比超收、黑牌教保員或採購異常）。\n請由地圖或名冊點選任一機構，我將為您以 AWS Bedrock 產出針對該校之專屬現場稽查指示書！"
+        reply = f"【新北市校園治理 AI 稽查總覽】\n新北市目前納管各級學校與幼托共 {len(ntpc)} 所，其中列為第一級高風險加強列管者共 {len(high_ntpc)} 所（涉及師生比超收、食材農藥超標或標案金流異常）。建議教育局公安聯合稽查小組優先針對高風險名冊排定現場實地督導。"
 
     return {"reply": reply}
 

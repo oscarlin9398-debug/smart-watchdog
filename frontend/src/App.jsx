@@ -18,9 +18,10 @@ export default function App() {
   const [printInst, setPrintInst] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
-  // Attempt to sync with local backend API if available
+  // Attempt to sync with backend API if available (falls back to bundled data)
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/institutions')
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+    fetch(`${apiBase}/api/institutions`)
       .then(res => {
         if (!res.ok) throw new Error('Network not ok');
         return res.json();
